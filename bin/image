@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -o errexit
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+go mod tidy
+go mod vendor
+
+docker build \
+  --build-arg APP_VERSION=$RELEASE_VERSION \
+  -t "${DOCKER_USER}/${APP_NAME}:${RELEASE_VERSION}" \
+  .
+
+docker push "${DOCKER_USER}/${APP_NAME}:${RELEASE_VERSION}"
+

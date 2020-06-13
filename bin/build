@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -o errexit
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+go mod tidy
+go mod vendor
+
+go build -a -tags netgo -ldflags \
+    "-w -extldflags '-static' -X main.AppVersion=${RELEASE_VERSION}" \
+    -mod vendor -o "dist/${APP_NAME}"
