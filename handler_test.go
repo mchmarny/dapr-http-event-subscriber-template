@@ -66,7 +66,7 @@ func TestEventHandler(t *testing.T) {
 	r.POST("/", eventHandler)
 	w := httptest.NewRecorder()
 
-	data, err := ioutil.ReadFile("./event.json")
+	data, err := ioutil.ReadFile("./mock/event.json")
 	assert.Nil(t, err)
 
 	req, _ := http.NewRequest("POST", "/", bytes.NewBuffer(data))
