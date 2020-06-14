@@ -14,5 +14,5 @@
 # mac
 .DS_Store
 
-# build 
-dist
+# bin 
+bin

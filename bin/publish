@@ -1,8 +1,0 @@
-#!/bin/bash
-
-set -o errexit
-set -o pipefail
-
-curl -v -d '{ "message": "hello" }' \
-     -H "Content-type: application/json" \
-     "http://localhost:3500/v1.0/publish/events"
