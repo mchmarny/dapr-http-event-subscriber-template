@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,11 @@ var (
 		"message": "Error processing your request, see logs for details",
 	}
 )
+
+// SimpleMessage corresponds to the payload published in make event
+type SimpleMessage struct {
+	Message string `json:"message"`
+}
 
 func eventHandler(c *gin.Context) {
 	ctx := getTraceContext(c)
@@ -46,21 +52,35 @@ func eventHandler(c *gin.Context) {
 		return
 	}
 
-	logger.Printf("saving event %s to %s - %s", e.ID(), storeName, string(e.Data()))
-	err := daprClient.SaveState(ctx, storeName, e.ID(), e.Data())
+	var in SimpleMessage
+	if err := json.Unmarshal(e.Data(), &in); err != nil {
+		logger.Printf("invalid event content format in event: %s", string(e.Data()))
+		c.JSON(http.StatusBadRequest, clientError)
+		return
+	}
+
+	logger.Printf("saving event %s to %s - %v", e.ID(), storeName, in)
+	err := daprClient.SaveState(ctx, storeName, e.ID(), in)
 	if err != nil {
 		logger.Printf("error saving event to store: %v", err)
 		c.JSON(http.StatusBadRequest, clientError)
 		return
 	}
 
-	out, err := daprClient.GetState(ctx, storeName, e.ID())
+	state, err := daprClient.GetState(ctx, storeName, e.ID())
 	if err != nil {
 		logger.Printf("error retreaving event from store: %v", err)
 		c.JSON(http.StatusBadRequest, clientError)
 		return
 	}
-	logger.Printf("retreaved event %s from %s - %s", e.ID(), storeName, string(out))
+
+	var out SimpleMessage
+	if err := json.Unmarshal(state, &out); err != nil {
+		logger.Printf("invalid event content format from store: %s", string(state))
+		c.JSON(http.StatusBadRequest, clientError)
+		return
+	}
+	logger.Printf("retreaved event %s from %s - %v", e.ID(), storeName, out)
 
 	err = daprClient.DeleteState(ctx, storeName, e.ID())
 	if err != nil {
