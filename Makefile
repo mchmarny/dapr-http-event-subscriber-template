@@ -1,5 +1,5 @@
 SERVICE_NAME     =starter
-RELEASE_VERSION  =v0.1.2
+RELEASE_VERSION  =v0.1.3
 DOCKER_USERNAME ?=$(DOCKER_USER)
 
 .PHONY: mod test run build exec image show imagerun lint clean, tag
