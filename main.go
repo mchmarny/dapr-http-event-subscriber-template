@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/gcputil/env"
@@ -26,38 +25,30 @@ var (
 	topicName   = env.MustGetEnvVar("TOPIC_NAME", "events")
 	storeName   = env.MustGetEnvVar("STORE_NAME", "store")
 
-	daprClient = dapr.NewClient()
+	// dapr
+	daprClient Client
+
+	// test client against local interace
+	_ = Client(dapr.NewClient())
 )
 
 func main() {
 	gin.SetMode(gin.ReleaseMode)
+
+	// wire actual Dapr client
+	daprClient = dapr.NewClient()
 
 	// router
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(Options)
 
-	// root route
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"release":      AppVersion,
-			"request_on":   time.Now(),
-			"request_from": c.Request.RemoteAddr,
-		})
-	})
-
 	// pubsub
-	r.GET("/dapr/subscribe", func(c *gin.Context) {
-		subscriptions := []dapr.Subscription{
-			{
-				Topic: topicName,
-				Route: "/events",
-			},
-		}
-		logger.Printf("subscription topics: %v", subscriptions)
-		c.JSON(http.StatusOK, subscriptions)
-	})
+	r.GET("/dapr/subscribe", subscriptionHandler)
 	r.POST("/events", eventHandler)
+
+	// default route
+	r.Any("/", defaultHandler)
 
 	// server
 	hostPort := net.JoinHostPort("0.0.0.0", servicePort)
@@ -95,4 +86,11 @@ func getTraceContext(c *gin.Context) trace.SpanContext {
 		[]byte{byte(ctx.TraceOptions)})
 
 	return ctx
+}
+
+// Client is the minimal client support for testing
+type Client interface {
+	GetState(ctx trace.SpanContext, store, key string) ([]byte, error)
+	SaveState(ctx trace.SpanContext, store, key string, data interface{}) error
+	DeleteState(ctx trace.SpanContext, store, key string) error
 }

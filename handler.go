@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	dapr "github.com/mchmarny/godapr/v1"
 
 	ce "github.com/cloudevents/sdk-go/v2"
 )
@@ -27,6 +29,25 @@ var (
 // SimpleMessage corresponds to the payload published in make event
 type SimpleMessage struct {
 	Message string `json:"message"`
+}
+
+func defaultHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"release":      AppVersion,
+		"request_on":   time.Now(),
+		"request_from": c.Request.RemoteAddr,
+	})
+}
+
+func subscriptionHandler(c *gin.Context) {
+	subscriptions := []dapr.Subscription{
+		{
+			Topic: topicName,
+			Route: "/events",
+		},
+	}
+	logger.Printf("subscription topics: %v", subscriptions)
+	c.JSON(http.StatusOK, subscriptions)
 }
 
 func eventHandler(c *gin.Context) {
