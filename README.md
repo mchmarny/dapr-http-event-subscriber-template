@@ -15,7 +15,7 @@ This Dapr starter project accelerates the development of new Dapr services in `g
 
 This project also includes GitHub actions in [.github/workflows](.github/workflows) that test on each `push` and build images and mark release on each `tag`. 
 
-[![Test](https://github.com/mchmarny/dapr-starter/workflows/Test/badge.svg)](https://github.com/mchmarny/dapr-starter/actions?query=workflow%3ATest) ![Release](https://github.com/mchmarny/dapr-starter/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mchmarny/dapr-starter) ![Go Report Card](https://goreportcard.com/badge/github.com/mchmarny/dapr-starter)
+[![Test](https://github.com/mchmarny/dapr-starter/workflows/Test/badge.svg)](https://github.com/mchmarny/dapr-starter/actions?query=workflow%3ATest) ![Release](https://github.com/mchmarny/dapr-starter/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mchmarny/dapr-starter) [![Go Report Card](https://goreportcard.com/badge/github.com/mchmarny/dapr-starter)](https://goreportcard.com/report/github.com/mchmarny/dapr-starter)
 
 ## how to use
 
