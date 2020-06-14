@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starter
+  labels:
+    app: starter
+    env: starter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: starter
+  template:
+    metadata:
+      labels:
+        app: starter
+        env: starter
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "starter"
+        dapr.io/port: "8080"
+        dapr.io/log-as-json: "true"
+        dapr.io/config: "tracing"
+    spec:
+      containers:
+      - name: user-container
+        image: mchmarny/starter:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DAPR_HTTP_PORT
+          value: "3500"
+        - name: TOPIC_NAME
+          value: "events"
+        - name: STORE_NAME
+          value: "store"
