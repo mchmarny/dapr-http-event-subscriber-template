@@ -5,7 +5,7 @@ DOCKER_USERNAME ?=$(DOCKER_USER)
 .PHONY: mod test run build exec image show imagerun lint clean, tag
 all: test
 
-mod: ## Updates the go modules and vendors all dependancies 
+mod: ## Updates the go modules and vendors all dependencies 
 	go mod tidy
 	go mod vendor
 
@@ -28,12 +28,12 @@ exec: build ## Builds binary and runs it in Dapr
          --components-path ./config \
          bin/$(SERVICE_NAME) 
 
-event: ## Publishes message to Dapr pubsub API 
+event: ## Publishes sample message to Dapr pubsub API 
 	curl -v -d '{ "message": "hello" }' \
      -H "Content-type: application/json" \
      "http://localhost:3500/v1.0/publish/events"
 
-image: mod ## Builds and publish docker iamge 
+image: mod ## Builds and publish docker image 
 	docker build --build-arg VERSION=$(RELEASE_VERSION) \
 		-t "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)" .
 	docker push "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)"
