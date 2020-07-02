@@ -1,30 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: starter
+  name: dapr-event-subscriber-template
   labels:
-    app: starter
-    env: starter
+    app: dapr-event-subscriber-template
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: starter
+      app: dapr-event-subscriber-template
   template:
     metadata:
       labels:
-        app: starter
-        env: starter
+        app: dapr-event-subscriber-template
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "starter"
+        dapr.io/id: "dapr-event-subscriber-template"
         dapr.io/port: "8080"
         dapr.io/log-as-json: "true"
         dapr.io/config: "tracing"
     spec:
       containers:
       - name: user-container
-        image: mchmarny/starter:latest
+        image: mchmarny/dapr-event-subscriber-template:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

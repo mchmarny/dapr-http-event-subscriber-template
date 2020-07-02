@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -26,14 +25,9 @@ var (
 	}
 )
 
-// SimpleMessage corresponds to the payload published in make event
-type SimpleMessage struct {
-	Message string `json:"message"`
-}
-
 func defaultHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"release":      AppVersion,
+		"release":      Version,
 		"request_on":   time.Now(),
 		"request_from": c.Request.RemoteAddr,
 	})
@@ -51,13 +45,13 @@ func subscriptionHandler(c *gin.Context) {
 }
 
 func eventHandler(c *gin.Context) {
-	ctx := getTraceContext(c)
 	e := ce.NewEvent()
 	if err := c.ShouldBindJSON(&e); err != nil {
 		logger.Printf("error binding event: %v", err)
 		c.JSON(http.StatusBadRequest, clientError)
 		return
 	}
+	logger.Printf("event: %v", e)
 
 	eventVersion := e.Context.GetSpecVersion()
 	if eventVersion != SupportedCloudEventVersion {
@@ -73,43 +67,30 @@ func eventHandler(c *gin.Context) {
 		return
 	}
 
-	var in SimpleMessage
-	if err := json.Unmarshal(e.Data(), &in); err != nil {
-		logger.Printf("invalid event content format in event: %s", string(e.Data()))
-		c.JSON(http.StatusBadRequest, clientError)
-		return
-	}
-
-	logger.Printf("saving event %s to %s - %v", e.ID(), storeName, in)
-	err := daprClient.SaveState(ctx, storeName, e.ID(), in)
+	logger.Printf("saving event %s to %s", e.ID(), storeName)
+	err := daprClient.SaveStateData(c.Request.Context(), storeName, e.ID(), "", e.Data())
 	if err != nil {
 		logger.Printf("error saving event to store: %v", err)
 		c.JSON(http.StatusBadRequest, clientError)
 		return
 	}
 
-	state, err := daprClient.GetState(ctx, storeName, e.ID())
+	logger.Printf("geting event %s from %s", e.ID(), storeName)
+	out, etag, err := daprClient.GetState(c.Request.Context(), storeName, e.ID())
 	if err != nil {
 		logger.Printf("error retreaving event from store: %v", err)
 		c.JSON(http.StatusBadRequest, clientError)
 		return
 	}
+	logger.Printf("retreaved event (etag: %s) from %s - %s", etag, storeName, string(out))
 
-	var out SimpleMessage
-	if err := json.Unmarshal(state, &out); err != nil {
-		logger.Printf("invalid event content format from store: %s", string(state))
-		c.JSON(http.StatusBadRequest, clientError)
-		return
-	}
-	logger.Printf("retreaved event %s from %s - %v", e.ID(), storeName, out)
-
-	err = daprClient.DeleteState(ctx, storeName, e.ID())
+	logger.Printf("deleting event %s from %s", e.ID(), storeName)
+	err = daprClient.DeleteState(c.Request.Context(), storeName, e.ID())
 	if err != nil {
 		logger.Printf("error deleting event from store: %v", err)
 		c.JSON(http.StatusBadRequest, clientError)
 		return
 	}
-	logger.Printf("event %s deleted from %s", e.ID(), storeName)
-
+	logger.Println("event processing done")
 	c.JSON(http.StatusOK, nil)
 }

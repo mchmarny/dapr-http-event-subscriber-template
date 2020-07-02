@@ -1,8 +1,8 @@
-SERVICE_NAME     =starter
-RELEASE_VERSION  =v0.1.5
+RELEASE_VERSION  =v0.1.1
+SERVICE_NAME    ?=$(notdir $(shell pwd))
 DOCKER_USERNAME ?=$(DOCKER_USER)
 
-.PHONY: mod test run build exec image show imagerun lint clean, tag
+.PHONY: mod test run build dapr event image show imagerun lint clean, tag
 all: test
 
 mod: ## Updates the go modules and vendors all dependencies 
@@ -17,19 +17,20 @@ run: mod ## Runs the uncompiled code
 	go run handler.go main.go 
 
 build: mod ## Builds local release binary
-		env CGO_ENABLED=0 go build -ldflags "-X main.Version=$(RELEASE_VERSION)" \
-    	-mod vendor -o bin/$(SERVICE_NAME) .
+	CGO_ENABLED=0 go build -a -tags netgo -ldflags \
+    "-w -extldflags '-static' -X main.Version=$(RELEASE_VERSION)" \
+    -mod vendor -o bin/$(SERVICE_NAME) .
 
-exec: build ## Builds binary and runs it in Dapr
+dapr: build ## Builds binary and runs it in Dapr
 	dapr run --app-id $(SERVICE_NAME) \
-         --app-port 8080 \
-         --protocol http \
-				 --port 3500 \
+		 --app-port 8080 \
+		 --protocol http \
+		 --port 3500 \
          --components-path ./config \
          bin/$(SERVICE_NAME) 
 
 event: ## Publishes sample message to Dapr pubsub API 
-	curl -v -d '{ "message": "hello" }' \
+	curl -v -d @./event/sample.json \
      -H "Content-type: application/json" \
      "http://localhost:3500/v1.0/publish/events"
 
@@ -45,9 +46,14 @@ tag: ## Creates release tag
 	git tag $(RELEASE_VERSION)
 	git push origin $(RELEASE_VERSION)
 
-clean: ## Cleans all runtime generated directory
+clean: ## Cleans up generated files 
 	go clean
-	rm -fr ./bin/*
+	rm -fr ./bin
+	rm -fr ./vendor
+	rm go.*
+
+reset: clean ## Resets go modules 
+	rm go.*
 
 help: ## Display available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk \

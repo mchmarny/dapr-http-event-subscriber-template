@@ -5,38 +5,36 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mchmarny/gcputil/env"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
-	"go.opencensus.io/trace"
 
-	dapr "github.com/mchmarny/godapr/v1"
+	dapr "github.com/dapr/go-sdk/client"
 )
 
 var (
-	// AppVersion will be overritten during build
-	AppVersion = "v0.0.1-default"
+	// Version will be set during build
+	Version = "v0.0.1-default"
 
 	logger = log.New(os.Stdout, "", 0)
 
-	servicePort = env.MustGetEnvVar("PORT", "8080")
-	topicName   = env.MustGetEnvVar("TOPIC_NAME", "events")
-	storeName   = env.MustGetEnvVar("STORE_NAME", "store")
+	servicePort = getEnvVar("PORT", "8080")
+	topicName   = getEnvVar("TOPIC_NAME", "events")
+	storeName   = getEnvVar("STORE_NAME", "store")
 
 	// dapr
-	daprClient Client
-
-	// test client against local interace
-	_ = Client(dapr.NewClient())
+	daprClient dapr.Client
 )
 
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 
 	// wire actual Dapr client
-	daprClient = dapr.NewClient()
+	c, err := dapr.NewClient()
+	if err != nil {
+		logger.Fatalf("error creating Dapr client: %v", err)
+	}
+	daprClient = c
 
 	// router
 	r := gin.New()
@@ -52,8 +50,8 @@ func main() {
 
 	// server
 	hostPort := net.JoinHostPort("0.0.0.0", servicePort)
-	logger.Printf("Server (%s) starting: %s \n", AppVersion, hostPort)
-	if err := http.ListenAndServe(hostPort, &ochttp.Handler{Handler: r}); err != nil {
+	logger.Printf("Server (%s) starting: %s \n", Version, hostPort)
+	if err := http.ListenAndServe(hostPort, r); err != nil {
 		logger.Fatalf("server error: %v", err)
 	}
 }
@@ -72,25 +70,9 @@ func Options(c *gin.Context) {
 	}
 }
 
-func getTraceContext(c *gin.Context) trace.SpanContext {
-	httpFmt := tracecontext.HTTPFormat{}
-	ctx, ok := httpFmt.SpanContextFromRequest(c.Request)
-	if !ok {
-		ctx = trace.SpanContext{}
+func getEnvVar(key, fallbackValue string) string {
+	if val, ok := os.LookupEnv(key); ok {
+		return strings.TrimSpace(val)
 	}
-
-	logger.Printf("trace info [%s]: 0-%x-%x-%x",
-		c.Request.URL.Path,
-		ctx.TraceID[:],
-		ctx.SpanID[:],
-		[]byte{byte(ctx.TraceOptions)})
-
-	return ctx
-}
-
-// Client is the minimal client support for testing
-type Client interface {
-	GetState(ctx trace.SpanContext, store, key string) ([]byte, error)
-	SaveState(ctx trace.SpanContext, store, key string, data interface{}) error
-	DeleteState(ctx trace.SpanContext, store, key string) error
+	return fallbackValue
 }
