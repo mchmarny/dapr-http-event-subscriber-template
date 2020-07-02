@@ -4,10 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	dapr "github.com/mchmarny/godapr/v1"
-
 	ce "github.com/cloudevents/sdk-go/v2"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -34,7 +32,8 @@ func defaultHandler(c *gin.Context) {
 }
 
 func subscriptionHandler(c *gin.Context) {
-	subscriptions := []dapr.Subscription{
+	//TODO: use dapr.Subscription when https://github.com/dapr/go-sdk/pull/27 lands
+	subscriptions := []*subscription{
 		{
 			Topic: topicName,
 			Route: "/events",
@@ -93,4 +92,9 @@ func eventHandler(c *gin.Context) {
 	}
 	logger.Println("event processing done")
 	c.JSON(http.StatusOK, nil)
+}
+
+type subscription struct {
+	Topic string `json:"topic"`
+	Route string `json:"route"`
 }
