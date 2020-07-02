@@ -3,14 +3,14 @@ FROM golang:1.14.4 as builder
 WORKDIR /src/
 COPY . /src/
 
-ARG APP_VERSION=v0.0.1-default
+ARG VERSION=v0.0.1-default
 
-ENV APP_VERSION=$APP_VERSION
+ENV VERSION=$VERSION
 ENV GO111MODULE=on
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -a -tags netgo -ldflags \
-    "-w -extldflags '-static' -X main.Version=${APP_VERSION}" \
+    "-w -extldflags '-static' -X main.Version=${VERSION}" \
     -mod vendor -o ./service .
 
 FROM gcr.io/distroless/static:nonroot
