@@ -2,16 +2,21 @@
 
 This Dapr template project accelerates the development of new Dapr services in `go`. It includes `make` commands for: 
 
-* `test`  - Tests the entire project
-* `run`   - Runs the un-compiled code
-* `build` - Builds local release binary
-* `exec`  - Builds binary and runs it in Dapr locally
-* `event` - Publishes sample message to Dapr pubsub API
-* `image` - Builds and publish docker image to Docker Hub
-* `lint`  - Lints the entire project
-* `tag`   - Creates release tag
-* `clean` - Cleans all runtime generated directory (bin, vendor)
-* `help`  - Display available commands
+```shell
+$ make help
+mod             Updates the go modules and vendors all dependencies
+test            Tests the entire project
+run             Runs the un-compiled code
+build           Builds local release binary
+dapr            Builds binary and runs it in Dapr
+event           Publishes sample message to Dapr pubsub API
+image           Builds and publish docker image
+lint            Lints the entire project
+tag             Creates release tag
+clean           Cleans up generated files
+reset           Resets go modules
+help            Display available commands
+```
 
 This project also includes GitHub actions in [.github/workflows](.github/workflows) that test on each `push` and build images and mark release on each `tag`. 
 
@@ -22,14 +27,21 @@ This project also includes GitHub actions in [.github/workflows](.github/workflo
 * Click "Use this template" above and follow the wizard to select owner and name your new repo
 * Clone your new repo locally (`git clone git@github.com:<GITHUB-USERNAME>/<GITHUB-USERNAME>.git`)
 * Navigate to your newly cloned repo (`cd <REPO-NAME>`)
-* Cleanup old artifacts (`make clean`)
-* Init go module (`go mod init github.com/<GITHUB-USERNAME>/<GITHUB-USERNAME>`)
+* Cleanup old artifacts (`make reset`)
+* Init go module with your repo URL (`go mod init github.com/<GITHUB-USERNAME>/<GITHUB-USERNAME>`)
 * Add missing modules (`go mod tidy`)
 * Copy all dependencies locally (`go mod vendor`)
+* Test to ensure everything is working (`make test`)
 
 ### deployment files
 
-If deploying to Kubernates you will also need to update the components and deployment files in the [deploy](deploy) directory. 
+> If deploying to Kubernates you will also need to update the components and deployment files in the [deploy](deploy) directory and define your DockerHub username (`DOCKER_USER`)
+
+To build and publish image:
+
+```shell
+make image
+```
 
 ## Disclaimer
 
