@@ -105,7 +105,11 @@ func (c *TestClient) SaveState(ctx context.Context, s *dapr.State) error {
 	return nil
 }
 
-func (c *TestClient) SaveStateData(ctx context.Context, store, key, etag string, data []byte) error {
+func (c *TestClient) SaveStateData(ctx context.Context, store, key string, data []byte) error {
+	return nil
+}
+
+func (c *TestClient) SaveStateDataVersion(ctx context.Context, store, key, etag string, data []byte) error {
 	return nil
 }
 

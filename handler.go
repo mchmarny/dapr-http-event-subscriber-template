@@ -67,7 +67,7 @@ func eventHandler(c *gin.Context) {
 	}
 
 	logger.Printf("saving event %s to %s", e.ID(), storeName)
-	err := daprClient.SaveStateData(c.Request.Context(), storeName, e.ID(), "", e.Data())
+	err := daprClient.SaveStateData(c.Request.Context(), storeName, e.ID(), e.Data())
 	if err != nil {
 		logger.Printf("error saving event to store: %v", err)
 		c.JSON(http.StatusBadRequest, clientError)

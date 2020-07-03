@@ -6,6 +6,7 @@ This Dapr template project accelerates the development of new Dapr services in `
 $ make help
 mod             Updates the go modules and vendors all dependencies
 test            Tests the entire project
+testevent       Tests only the event handler
 run             Runs the un-compiled code
 build           Builds local release binary
 dapr            Builds binary and runs it in Dapr
