@@ -1,5 +1,7 @@
 # dapr-event-subscriber-template
 
+[![Test](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Test/badge.svg)](https://github.com/mchmarny/dapr-event-subscriber-template/actions?query=workflow%3ATest) ![Release](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mchmarny/dapr-event-subscriber-template) [![Go Report Card](https://goreportcard.com/badge/github.com/mchmarny/dapr-event-subscriber-template)](https://goreportcard.com/report/github.com/mchmarny/dapr-event-subscriber-template)
+
 This Dapr template project accelerates the development of new Dapr services in `go`. It includes `make` commands for: 
 
 ```shell
@@ -19,9 +21,12 @@ reset           Resets go modules
 help            Display available commands
 ```
 
-This project also includes GitHub actions in [.github/workflows](.github/workflows) that test on each `push` and build images and mark release on each `tag`. 
-
-[![Test](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Test/badge.svg)](https://github.com/mchmarny/dapr-event-subscriber-template/actions?query=workflow%3ATest) ![Release](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mchmarny/dapr-event-subscriber-template) [![Go Report Card](https://goreportcard.com/badge/github.com/mchmarny/dapr-event-subscriber-template)](https://goreportcard.com/report/github.com/mchmarny/dapr-event-subscriber-template)
+This project also includes GitHub actions in [.github/workflows](.github/workflows) that test on each `push` and build images and mark release on each `tag`. Other Dapr GitHub templates to accelerate development:
+	
+* [dapr-grpc-event-subscriber-template](https://github.com/mchmarny/dapr-grpc-event-subscriber-template)
+* [dapr-http-event-subscriber-template](https://github.com/mchmarny/dapr-event-subscriber-template)
+* [dapr-ui-app-template](https://github.com/mchmarny/dapr-ui-app-template)
+* [csharp-dapr-fn-template](https://github.com/azure-octo/csharp-dapr-fn-template)
 
 ## usage 
 
