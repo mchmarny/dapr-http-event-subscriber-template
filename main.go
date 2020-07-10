@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 
 	"log"
 	"net/http"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/dapr/go-sdk/server/event"
 	daprd "github.com/dapr/go-sdk/server/http"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -53,13 +51,8 @@ func main() {
 }
 
 func eventHandler(ctx context.Context, e event.TopicEvent) error {
-	log.Printf("event - Topic:%s, ID:%s", e.Topic, e.ID)
-
-	var cloudevent CloudEvent
-	if err := json.Unmarshal(e.Data, &cloudevent); err != nil {
-		return errors.Wrap(err, "error binding cloud event")
-	}
-	logger.Printf("event: %v", cloudevent.Data)
+	log.Printf("event - Source: %s, Topic:%s, ID:%s, Data Type: %T",
+		e.Source, e.Topic, e.ID, e.Data)
 
 	// TODO: do something with the cloud event data
 
@@ -71,15 +64,4 @@ func getEnvVar(key, fallbackValue string) string {
 		return strings.TrimSpace(val)
 	}
 	return fallbackValue
-}
-
-// CloudEvent is a local copy of the minimal Cloud Event message
-type CloudEvent struct {
-	ID              string      `json:"id"`
-	Source          string      `json:"source"`
-	Type            string      `json:"type"`
-	SpecVersion     string      `json:"specversion"`
-	DataContentType string      `json:"datacontenttype"`
-	Data            interface{} `json:"data"`
-	Subject         string      `json:"subject"`
 }

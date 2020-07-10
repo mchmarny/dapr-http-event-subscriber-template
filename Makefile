@@ -9,10 +9,10 @@ tidy: ## Updates the go modules and vendors all dependencies
 	go mod tidy
 	go mod vendor
 
-test: mod ## Tests the entire project 
+test: tidy ## Tests the entire project 
 	go test -count=1 -race ./...
 
-build: mod ## Builds local release binary
+build: tidy ## Builds local release binary
 	CGO_ENABLED=0 go build -a -tags netgo -mod vendor -o bin/$(SERVICE_NAME) .
 
 run: build ## Builds binary and runs it in Dapr
@@ -21,14 +21,15 @@ run: build ## Builds binary and runs it in Dapr
 		 --protocol http \
 		 --port 3500 \
          --components-path ./config \
+		 --log-level debug \
          bin/$(SERVICE_NAME) 
 
 event: ## Publishes sample message to Dapr pubsub API 
-	curl -v -d @./event/sample.json \
+	curl -v -d '{ "message": "hello" }' \
      -H "Content-type: application/json" \
      "http://localhost:3500/v1.0/publish/events"
 
-image: mod ## Builds and publish docker image 
+image: tidy ## Builds and publish docker image 
 	docker build -t "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)" .
 	docker push "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)"
 
