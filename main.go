@@ -1,73 +1,69 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"strings"
 
-	"github.com/gin-gonic/gin"
-
-	dapr "github.com/dapr/go-sdk/client"
+	"github.com/dapr/go-sdk/server/event"
+	daprd "github.com/dapr/go-sdk/server/http"
+	"github.com/pkg/errors"
 )
 
 var (
-	// Version will be set during build
-	Version = "v0.0.1-default"
-
-	logger = log.New(os.Stdout, "", 0)
-
+	logger      = log.New(os.Stdout, "", 0)
 	servicePort = getEnvVar("PORT", "8080")
 	topicName   = getEnvVar("TOPIC_NAME", "events")
-	storeName   = getEnvVar("STORE_NAME", "store")
-
-	// dapr
-	daprClient dapr.Client
 )
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	// create a regular HTTP server mux
+	mux := http.NewServeMux()
 
-	// wire actual Dapr client
-	c, err := dapr.NewClient()
+	// create a Dapr service server
+	daprServer, err := daprd.NewServer(mux)
 	if err != nil {
-		logger.Fatalf("error creating Dapr client: %v", err)
+		log.Fatalf("error creating sever: %v", err)
 	}
-	daprClient = c
 
-	// router
-	r := gin.New()
-	r.Use(gin.Recovery())
-	r.Use(Options)
+	// add some topic subscriptions
+	err = daprServer.AddTopicEventHandler("events", "/events", eventHandler)
+	if err != nil {
+		log.Fatalf("error adding topic subscription: %v", err)
+	}
 
-	// pubsub
-	r.GET("/dapr/subscribe", subscriptionHandler)
-	r.POST("/events", eventHandler)
+	// start the server
+	err = daprServer.HandleSubscriptions()
+	if err != nil {
+		log.Fatalf("error creating topic subscription: %v", err)
+	}
 
-	// default route
-	r.Any("/", defaultHandler)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
+	}
 
-	// server
-	hostPort := net.JoinHostPort("0.0.0.0", servicePort)
-	logger.Printf("Server (%s) starting: %s \n", Version, hostPort)
-	if err := http.ListenAndServe(hostPort, r); err != nil {
-		logger.Fatalf("server error: %v", err)
+	if err = server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("error listenning: %v", err)
 	}
 }
 
-// Options midleware
-func Options(c *gin.Context) {
-	if c.Request.Method != "OPTIONS" {
-		c.Next()
-	} else {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "POST,OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
-		c.Header("Allow", "POST,OPTIONS")
-		c.Header("Content-Type", "application/json")
-		c.AbortWithStatus(http.StatusOK)
+func eventHandler(ctx context.Context, e event.TopicEvent) error {
+	log.Printf("event - Topic:%s, ID:%s", e.Topic, e.ID)
+
+	var cloudevent CloudEvent
+	if err := json.Unmarshal(e.Data, &cloudevent); err != nil {
+		return errors.Wrap(err, "error binding cloud event")
 	}
+	logger.Printf("event: %v", cloudevent.Data)
+
+	// TODO: do something with the cloud event data
+
+	return nil
 }
 
 func getEnvVar(key, fallbackValue string) string {
@@ -75,4 +71,15 @@ func getEnvVar(key, fallbackValue string) string {
 		return strings.TrimSpace(val)
 	}
 	return fallbackValue
+}
+
+// CloudEvent is a local copy of the minimal Cloud Event message
+type CloudEvent struct {
+	ID              string      `json:"id"`
+	Source          string      `json:"source"`
+	Type            string      `json:"type"`
+	SpecVersion     string      `json:"specversion"`
+	DataContentType string      `json:"datacontenttype"`
+	Data            interface{} `json:"data"`
+	Subject         string      `json:"subject"`
 }

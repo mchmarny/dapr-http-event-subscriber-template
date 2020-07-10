@@ -5,25 +5,17 @@ DOCKER_USERNAME ?=$(DOCKER_USER)
 .PHONY: mod test run build dapr event image show imagerun lint clean, tag
 all: test
 
-mod: ## Updates the go modules and vendors all dependencies 
+tidy: ## Updates the go modules and vendors all dependencies 
 	go mod tidy
 	go mod vendor
 
 test: mod ## Tests the entire project 
 	go test -count=1 -race ./...
 
-testevent: mod ## Tests only the event handler
-	go test -v -count=1 -run TestEventHandler ./...
-
-run: mod ## Runs the uncompiled code
-	go run handler.go main.go 
-
 build: mod ## Builds local release binary
-	CGO_ENABLED=0 go build -a -tags netgo -ldflags \
-    "-w -extldflags '-static' -X main.Version=$(RELEASE_VERSION)" \
-    -mod vendor -o bin/$(SERVICE_NAME) .
+	CGO_ENABLED=0 go build -a -tags netgo -mod vendor -o bin/$(SERVICE_NAME) .
 
-dapr: build ## Builds binary and runs it in Dapr
+run: build ## Builds binary and runs it in Dapr
 	dapr run --app-id $(SERVICE_NAME) \
 		 --app-port 8080 \
 		 --protocol http \
@@ -37,8 +29,7 @@ event: ## Publishes sample message to Dapr pubsub API
      "http://localhost:3500/v1.0/publish/events"
 
 image: mod ## Builds and publish docker image 
-	docker build --build-arg VERSION=$(RELEASE_VERSION) \
-		-t "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)" .
+	docker build -t "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)" .
 	docker push "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)"
 
 lint: ## Lints the entire project 
