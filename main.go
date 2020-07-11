@@ -8,8 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dapr/go-sdk/server/event"
-	daprd "github.com/dapr/go-sdk/server/http"
+	daprd "github.com/dapr/go-sdk/service/http"
 )
 
 var (
@@ -22,22 +21,22 @@ func main() {
 	// create a regular HTTP server mux
 	mux := http.NewServeMux()
 
-	// create a Dapr service server
-	daprServer, err := daprd.NewServer(mux)
+	// create a Dapr service
+	s, err := daprd.NewService(mux)
 	if err != nil {
-		log.Fatalf("error creating sever: %v", err)
+		logger.Fatalf("error creating sever: %v", err)
 	}
 
 	// add some topic subscriptions
-	err = daprServer.AddTopicEventHandler("events", "/events", eventHandler)
+	err = s.AddTopicEventHandler("events", "/events", eventHandler)
 	if err != nil {
-		log.Fatalf("error adding topic subscription: %v", err)
+		logger.Fatalf("error adding topic subscription: %v", err)
 	}
 
 	// start the server
-	err = daprServer.HandleSubscriptions()
+	err = s.HandleSubscriptions()
 	if err != nil {
-		log.Fatalf("error creating topic subscription: %v", err)
+		logger.Fatalf("error creating topic subscription: %v", err)
 	}
 
 	server := &http.Server{
@@ -46,13 +45,24 @@ func main() {
 	}
 
 	if err = server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("error listenning: %v", err)
+		logger.Fatalf("error listenning: %v", err)
 	}
 }
 
-func eventHandler(ctx context.Context, e event.TopicEvent) error {
-	log.Printf("event - Source: %s, Topic:%s, ID:%s, Data Type: %T",
-		e.Source, e.Topic, e.ID, e.Data)
+func eventHandler(ctx context.Context, e daprd.TopicEvent) error {
+	logger.Printf("event - Source: %s, Topic:%s, ID:%s", e.Source, e.Topic, e.ID)
+
+	switch v := e.Data.(type) {
+	case string:
+		logger.Printf("%s", e.Data.(string))
+	case map[string]interface{}:
+		c := e.Data.(map[string]interface{})
+		for k, v := range c {
+			logger.Printf("%s: %v", k, v)
+		}
+	default:
+		logger.Printf("%t", v)
+	}
 
 	// TODO: do something with the cloud event data
 
