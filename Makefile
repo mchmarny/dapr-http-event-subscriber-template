@@ -56,7 +56,7 @@ clean: ## Cleans up generated files
 	rm -fr ./vendor
 
 reset: clean ## Resets go modules 
-	rm go.*
+	rm *.go
 
 help: ## Display available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk \
