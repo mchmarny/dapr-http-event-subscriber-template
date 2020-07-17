@@ -2,13 +2,12 @@
 
 [![Test](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Test/badge.svg)](https://github.com/mchmarny/dapr-event-subscriber-template/actions?query=workflow%3ATest) ![Release](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mchmarny/dapr-event-subscriber-template) [![Go Report Card](https://goreportcard.com/badge/github.com/mchmarny/dapr-event-subscriber-template)](https://goreportcard.com/report/github.com/mchmarny/dapr-event-subscriber-template)
 
-This Dapr template project accelerates the development of new Dapr services in `go`. It includes `make` commands for: 
+Template project to bootstrap development of a new Dapr event processing services in `go`.
 
 ```shell
 $ make help
 mod             Updates the go modules and vendors all dependencies
 test            Tests the entire project
-testevent       Tests only the event handler
 run             Runs the un-compiled code
 build           Builds local release binary
 dapr            Builds binary and runs it in Dapr
@@ -26,7 +25,7 @@ This project also includes GitHub actions in [.github/workflows](.github/workflo
 * [dapr-grpc-event-subscriber-template](https://github.com/mchmarny/dapr-grpc-event-subscriber-template)
 * [dapr-http-event-subscriber-template](https://github.com/mchmarny/dapr-event-subscriber-template)
 * [dapr-ui-app-template](https://github.com/mchmarny/dapr-ui-app-template)
-* [csharp-dapr-fn-template](https://github.com/azure-octo/csharp-dapr-fn-template)
+* [dapr-http-cron-handler-template](https://github.com/mchmarny/dapr-http-cron-handler-template)
 
 ## usage 
 

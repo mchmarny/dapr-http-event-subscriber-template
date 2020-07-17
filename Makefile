@@ -54,7 +54,6 @@ clean: ## Cleans up generated files
 	go clean
 	rm -fr ./bin
 	rm -fr ./vendor
-	rm go.*
 
 reset: clean ## Resets go modules 
 	rm go.*
