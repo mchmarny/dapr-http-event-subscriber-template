@@ -2,27 +2,46 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"time"
 
-	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	daprd "github.com/dapr/go-sdk/service/http"
 )
 
 var (
-	logger    = log.New(os.Stdout, "", 0)
+	logger    *log.Logger
 	address   = getEnvVar("ADDRESS", ":8080")
 	topicName = getEnvVar("TOPIC_NAME", "events")
 )
+
+func init() {
+	// configure logging
+	logger = log.New()
+	logger.Level = log.DebugLevel
+	logger.Out = os.Stdout
+	logger.Formatter = &log.JSONFormatter{
+		FieldMap: log.FieldMap{
+			log.FieldKeyTime:  "timestamp",
+			log.FieldKeyLevel: "severity",
+			log.FieldKeyMsg:   "message",
+		},
+		TimestampFormat: time.RFC3339Nano,
+	}
+}
 
 func main() {
 	// create a Dapr service
 	s := daprd.NewService()
 
 	// add some topic subscriptions
-	err := s.AddTopicEventHandler("events", "/events", eventHandler)
+	topicRoute := fmt.Sprintf("/%s", topicName)
+	err := s.AddTopicEventHandler(topicName, topicRoute, eventHandler)
 	if err != nil {
 		logger.Fatalf("error adding topic subscription: %v", err)
 	}
@@ -34,13 +53,13 @@ func main() {
 }
 
 func eventHandler(ctx context.Context, e daprd.TopicEvent) error {
-	logger.Printf(
+	logger.Debugf(
 		"event - Source: %s, Topic:%s, ID:%s, DataContentType:%s",
 		e.Source, e.Topic, e.ID, e.DataContentType,
 	)
 
 	// TODO: do something with the cloud event data
-	logger.Println(e.Data)
+	logger.Infoln(e.Data)
 
 	return nil
 }

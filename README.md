@@ -6,18 +6,20 @@ Template project to bootstrap development of a new Dapr event processing service
 
 ```shell
 $ make help
-mod             Updates the go modules and vendors all dependencies
-test            Tests the entire project
-run             Runs the un-compiled code
-build           Builds local release binary
-dapr            Builds binary and runs it in Dapr
-event           Publishes sample message to Dapr pubsub API
-image           Builds and publish docker image
-lint            Lints the entire project
-tag             Creates release tag
-clean           Cleans up generated files
-reset           Resets go modules
-help            Display available commands
+tidy                           Updates the go modules and vendors all dependencies
+test                           Tests the entire project
+debug                          Runs uncompiled code in Dapr
+build                          Builds local release binary
+run                            Builds binary and runs it in Dapr
+jsonevent                      Publishes sample JSON message to Dapr pubsub API
+xmlevent                       Publishes sample XML message to Dapr pubsub API
+binevent                       Publishes sample binary message to Dapr pubsub API
+image                          Builds and publishes docker image
+lint                           Lints the entire project
+tag                            Creates release tag
+clean                          Cleans up generated files
+reset                          Resets go modules
+help                           Display available commands
 ```
 
 This project also includes GitHub actions in [.github/workflows](.github/workflows) that test on each `push` and build images and mark release on each `tag`. Other Dapr GitHub templates to accelerate development:

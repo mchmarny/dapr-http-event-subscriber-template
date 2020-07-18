@@ -12,17 +12,28 @@ tidy: ## Updates the go modules and vendors all dependencies
 test: tidy ## Tests the entire project 
 	go test -count=1 -race ./...
 
+debug: tidy ## Runs uncompiled code in Dapr
+	dapr run \
+      --app-id $(SERVICE_NAME) \
+      --app-port 8080 \
+      --protocol http \
+      --port 3500 \
+      --components-path ./config \
+      --log-level debug \
+      go run main.go
+
 build: tidy ## Builds local release binary
 	CGO_ENABLED=0 go build -a -tags netgo -mod vendor -o bin/$(SERVICE_NAME) .
 
 run: build ## Builds binary and runs it in Dapr
-	dapr run --app-id $(SERVICE_NAME) \
-		 --app-port 8080 \
-		 --protocol http \
-		 --port 3500 \
-         --components-path ./config \
-		 --log-level debug \
-         bin/$(SERVICE_NAME) 
+	dapr run \
+      --app-id $(SERVICE_NAME) \
+      --app-port 8080 \
+      --protocol http \
+      --port 3500 \
+      --components-path ./config \
+      --log-level debug \
+      bin/$(SERVICE_NAME) 
 
 jsonevent: ## Publishes sample JSON message to Dapr pubsub API 
 	curl -d '{ "from": "John", "to": "Lary", "message": "hi" }' \
@@ -39,7 +50,7 @@ binevent: ## Publishes sample binary message to Dapr pubsub API
      -H "Content-type: application/octet-stream" \
      "http://localhost:3500/v1.0/publish/events"
 
-image: tidy ## Builds and publish docker image 
+image: tidy ## Builds and publishes docker image 
 	docker build -t "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)" .
 	docker push "$(DOCKER_USERNAME)/$(SERVICE_NAME):$(RELEASE_VERSION)"
 
