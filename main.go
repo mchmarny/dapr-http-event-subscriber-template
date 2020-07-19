@@ -37,7 +37,7 @@ func init() {
 
 func main() {
 	// create a Dapr service
-	s := daprd.NewService()
+	s := daprd.NewService(address)
 
 	// add some topic subscriptions
 	topicRoute := fmt.Sprintf("/%s", topicName)
@@ -47,19 +47,18 @@ func main() {
 	}
 
 	// start the service
-	if err = s.Start(address); err != nil && err != http.ErrServerClosed {
+	if err = s.Start(); err != nil && err != http.ErrServerClosed {
 		logger.Fatalf("error starting service: %v", err)
 	}
 }
 
-func eventHandler(ctx context.Context, e daprd.TopicEvent) error {
+func eventHandler(ctx context.Context, e *daprd.TopicEvent) error {
 	logger.Debugf(
-		"event - Source: %s, Topic:%s, ID:%s, DataContentType:%s",
-		e.Source, e.Topic, e.ID, e.DataContentType,
+		"Event - Source: %s, Topic:%s, ID:%s, DataContentType:%s, Data:%v",
+		e.Source, e.Topic, e.ID, e.DataContentType, e.Data,
 	)
 
 	// TODO: do something with the cloud event data
-	logger.Infoln(e.Data)
 
 	return nil
 }
