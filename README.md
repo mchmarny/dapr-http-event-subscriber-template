@@ -1,6 +1,6 @@
-# dapr-event-subscriber-template
+# dapr-http-event-subscriber-template
 
-[![Test](https://github.com/dapr-templates/dapr-event-subscriber-template/workflows/Test/badge.svg)](https://github.com/dapr-templates/dapr-event-subscriber-template/actions?query=workflow%3ATest) ![Release](https://github.com/dapr-templates/dapr-event-subscriber-template/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/dapr-templates/dapr-event-subscriber-template) [![Go Report Card](https://goreportcard.com/badge/github.com/dapr-templates/dapr-event-subscriber-template)](https://goreportcard.com/report/github.com/dapr-templates/dapr-event-subscriber-template)
+[![Test](https://github.com/dapr-templates/dapr-http-event-subscriber-template/workflows/Test/badge.svg)](https://github.com/dapr-templates/dapr-http-event-subscriber-template/actions?query=workflow%3ATest) ![Release](https://github.com/dapr-templates/dapr-http-event-subscriber-template/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/dapr-templates/dapr-http-event-subscriber-template) [![Go Report Card](https://goreportcard.com/badge/github.com/dapr-templates/dapr-http-event-subscriber-template)](https://goreportcard.com/report/github.com/dapr-templates/dapr-http-event-subscriber-template)
 
 ## template usage 
 
