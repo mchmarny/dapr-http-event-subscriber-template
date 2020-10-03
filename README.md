@@ -1,6 +1,6 @@
 # dapr-event-subscriber-template
 
-[![Test](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Test/badge.svg)](https://github.com/mchmarny/dapr-event-subscriber-template/actions?query=workflow%3ATest) ![Release](https://github.com/mchmarny/dapr-event-subscriber-template/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/mchmarny/dapr-event-subscriber-template) [![Go Report Card](https://goreportcard.com/badge/github.com/mchmarny/dapr-event-subscriber-template)](https://goreportcard.com/report/github.com/mchmarny/dapr-event-subscriber-template)
+[![Test](https://github.com/dapr-templates/dapr-event-subscriber-template/workflows/Test/badge.svg)](https://github.com/dapr-templates/dapr-event-subscriber-template/actions?query=workflow%3ATest) ![Release](https://github.com/dapr-templates/dapr-event-subscriber-template/workflows/Release/badge.svg?query=workflow%3ARelease) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/dapr-templates/dapr-event-subscriber-template) [![Go Report Card](https://goreportcard.com/badge/github.com/dapr-templates/dapr-event-subscriber-template)](https://goreportcard.com/report/github.com/dapr-templates/dapr-event-subscriber-template)
 
 ## template usage 
 
@@ -15,20 +15,17 @@
 Common operations to help you bootstrap a Dapr HTTP services development in `go`:
 
 ```shell
-$ make help
+$ make
 tidy                           Updates the go modules and vendors all dependencies
 test                           Tests the entire project
-debug                          Runs uncompiled code in Dapr
+run                            Runs uncompiled code in Dapr
 build                          Builds local release binary
-run                            Builds binary and runs it in Dapr
-jsonevent                      Publishes sample JSON message to Dapr pubsub API
-xmlevent                       Publishes sample XML message to Dapr pubsub API
-binevent                       Publishes sample binary message to Dapr pubsub API
-image                          Builds and publishes docker image
+event                          Publishes sample JSON message to Dapr pubsub API
+image                          Builds and publish docker image
 lint                           Lints the entire project
 tag                            Creates release tag
 clean                          Cleans up generated files
-reset                          Resets go modules
+init                           Resets go modules
 help                           Display available commands
 ```
 
